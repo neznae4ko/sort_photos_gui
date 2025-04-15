@@ -126,11 +126,11 @@ class PhotoProcessor:
 
         # Обновленная цветовая палитра
         self.color_palette = {
-            'analyze': {'bg': '#6B8E23', 'fg': '#FFFFFF', 'active_bg': '#556B2F'},  # Оливковый
-            'move': {'bg': '#4682B4', 'fg': '#FFFFFF', 'active_bg': '#3A6B8F'},      # Стальной синий
-            'pause': {'bg': '#DAA520', 'fg': '#FFFFFF', 'active_bg': '#B8860B'},    # Золотистый
-            'stop': {'bg': '#CD5C5C', 'fg': '#FFFFFF', 'active_bg': '#A52A2A'},     # Индийский красный
-            'default': {'bg': '#E0E0E0', 'fg': '#333333', 'active_bg': '#CCCCCC'}
+            'analyze': {'bg': '#5F9EA0', 'fg': '#FFFFFF', 'active_bg': '#497A7C'},
+            'move': {'bg': '#6495ED', 'fg': '#FFFFFF', 'active_bg': '#527BC2'},
+            'pause': {'bg': '#FFA500', 'fg': '#FFFFFF', 'active_bg': '#D18A00'},
+            'stop': {'bg': '#F08080', 'fg': '#FFFFFF', 'active_bg': '#CD6A6A'},
+            'default': {'bg': '#000000', 'fg': '#888888', 'active_bg': '#CCCCCC'}
         }
 
         tk.Label(control_frame, text="Название камеры для поиска:").grid(row=0, column=0, padx=5, sticky='e')
@@ -158,7 +158,7 @@ class PhotoProcessor:
         )
         self.analyze_button.grid(row=0, column=2, padx=5)
 
-        # Остальные кнопки остаются без изменений
+        # Кнопка перемещения с иконкой "move"
         self.move_icon = self.create_control_icon("move")
         self.move_button = tk.Button(
             control_frame,
@@ -177,6 +177,7 @@ class PhotoProcessor:
         )
         self.move_button.grid(row=0, column=3, padx=5)
 
+        # Кнопка паузы с иконкой "pause"
         self.pause_icon = self.create_control_icon("pause")
         self.pause_button = tk.Button(
             control_frame,
@@ -195,6 +196,7 @@ class PhotoProcessor:
         )
         self.pause_button.grid(row=0, column=4, padx=5)
 
+        # Кнопка стоп с иконкой "stop"
         self.stop_icon = self.create_control_icon("stop")
         self.stop_button = tk.Button(
             control_frame,
@@ -215,76 +217,65 @@ class PhotoProcessor:
 
         control_frame.grid_columnconfigure(1, weight=1)
 
-
-
-
-
-    
-    
     def create_control_icon(self, icon_type):
-        icon_size = 30
-        background_color = "#f0f0f0"
-        icon_image = Image.new("RGB", (icon_size, icon_size), background_color)
+        icon_size = 25
+        background_color = "#333333"
+        icon_image = Image.new("RGBA", (icon_size, icon_size), (0, 0, 0, 0))
         icon_draw = ImageDraw.Draw(icon_image)
-        
-        if icon_type == "search":
-            icon_color = "#FFFFFF"
-            circle_radius = icon_size//3
-            center_x, center_y = icon_size//2, icon_size//2
-            icon_draw.ellipse(
-                (center_x-circle_radius, center_y-circle_radius,
-                 center_x+circle_radius, center_y+circle_radius),
-                outline=icon_color, width=3
-            )
-            handle_length = icon_size//3
-            icon_draw.line(
-                (center_x, center_y,
-                 center_x+handle_length, center_y+handle_length),
-                fill=icon_color, width=3
-            )
-        
-        elif icon_type == "move":
-            icon_color = "#FFFFFF"
-            arrow_size = icon_size//3
-            margin = icon_size//4
+
+        if icon_type == "play":
+            icon_color = "#ffffff"
+            arrow_size = icon_size // 3
+            margin = icon_size // 4
             icon_draw.polygon(
                 [(margin, margin),
-                 (icon_size-margin, icon_size//2),
-                 (margin, icon_size-margin)],
+                 (icon_size - margin, icon_size // 2),
+                 (margin, icon_size - margin)],
                 fill=icon_color
             )
-        
+
+        elif icon_type == "move":
+            icon_color = "#ffffff"
+            arrow_size = icon_size // 3
+            margin = icon_size // 4
+            icon_draw.polygon(
+                [(margin, margin),
+                 (icon_size - margin, icon_size // 2),
+                 (margin, icon_size - margin)],
+                fill=icon_color
+            )
+            icon_draw.polygon(
+                [(icon_size - margin, margin),
+                 (margin, icon_size // 2),
+                 (icon_size - margin, icon_size - margin)],
+                fill=icon_color
+            )
+
         elif icon_type == "pause":
-            icon_color = "#FFFFFF"
-            bar_width = icon_size//8
-            gap = icon_size//10
+            icon_color = "#ffffff"
+            bar_width = icon_size // 8
+            gap = icon_size // 10
             icon_draw.rectangle(
-                [(icon_size//2 - gap - bar_width, icon_size//4),
-                 (icon_size//2 - gap, 3*icon_size//4)],
+                [(icon_size // 2 - gap - bar_width, icon_size // 4),
+                 (icon_size // 2 - gap, 3 * icon_size // 4)],
                 fill=icon_color
             )
             icon_draw.rectangle(
-                [(icon_size//2 + gap, icon_size//4),
-                 (icon_size//2 + gap + bar_width, 3*icon_size//4)],
+                [(icon_size // 2 + gap, icon_size // 4),
+                 (icon_size // 2 + gap + bar_width, 3 * icon_size // 4)],
                 fill=icon_color
             )
-        
+
         elif icon_type == "stop":
-            icon_color = "#FFFFFF"
-            margin = icon_size//4
+            icon_color = "#ffffff"
+            margin = icon_size // 4
             icon_draw.rectangle(
                 [(margin, margin),
-                 (icon_size-margin, icon_size-margin)],
+                 (icon_size - margin, icon_size - margin)],
                 fill=icon_color
             )
 
         return ImageTk.PhotoImage(icon_image)
-
-
-
-
-
-
 
     def create_log_display_panel(self):
         main_panel = tk.Frame(self.main_window)
@@ -415,7 +406,7 @@ class PhotoProcessor:
         self.add_log_message(f"Всего обработано фотографий: {total_photos_processed}", 'header_text')
         status_tag = 'match_text' if matching_photos_found > 0 else 'normal_text'
         self.add_log_message(f"Найдено соответствующих фотографий: {matching_photos_found}", status_tag)
-    
+
     def move_matching_photos(self):
         source_directory = self.source_directory_entry.get()
         base_target_directory = self.target_directory_entry.get()
@@ -479,11 +470,11 @@ class PhotoProcessor:
 
         if successfully_moved_count > 0:
             messagebox.showinfo(
-                "Завершено", 
+                "Завершено",
                 f"Успешно перемещено {successfully_moved_count} фотографий камеры {camera_name_to_move}\n"
                 f"в папку: {target_directory}"
             )
- 
+
     def validate_directory_paths(self, source_path, target_path):
         if not os.path.isdir(source_path):
             self.add_log_message(f"ОШИБКА: Исходная папка не существует!\n{source_path}", 'error_text')
