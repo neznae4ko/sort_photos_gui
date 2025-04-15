@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageTk
 from PIL.ExifTags import TAGS
 import threading
 import time
+import subprocess
 
 class PhotoProcessor:
     def __init__(self, main_window):
@@ -224,7 +225,7 @@ class PhotoProcessor:
         icon_draw = ImageDraw.Draw(icon_image)
 
         if icon_type == "play":
-            icon_color = "#ffffff"
+            icon_color = "#888888"
             arrow_size = icon_size // 3
             margin = icon_size // 4
             icon_draw.polygon(
@@ -235,7 +236,7 @@ class PhotoProcessor:
             )
 
         elif icon_type == "move":
-            icon_color = "#ffffff"
+            icon_color = "#888888"
             arrow_size = icon_size // 3
             margin = icon_size // 4
             icon_draw.polygon(
@@ -252,7 +253,7 @@ class PhotoProcessor:
             )
 
         elif icon_type == "pause":
-            icon_color = "#ffffff"
+            icon_color = "#888888"
             bar_width = icon_size // 8
             gap = icon_size // 10
             icon_draw.rectangle(
@@ -267,7 +268,7 @@ class PhotoProcessor:
             )
 
         elif icon_type == "stop":
-            icon_color = "#ffffff"
+            icon_color = "#888888"
             margin = icon_size // 4
             icon_draw.rectangle(
                 [(margin, margin),
@@ -322,6 +323,7 @@ class PhotoProcessor:
         self.camera_models_display['yscrollcommand'] = camera_scrollbar.set
 
         self.camera_models_display.bind("<Button-1>", self.select_camera_model_from_list)
+        self.log_display_text.bind("<Double-1>", self.open_file_location)
 
         main_panel.grid_rowconfigure(1, weight=1)
         main_panel.grid_columnconfigure(0, weight=1)
@@ -527,6 +529,26 @@ class PhotoProcessor:
             selected_model = self.camera_models_display.get(line_start, line_end)
             self.camera_name_entry.delete(0, tk.END)
             self.camera_name_entry.insert(0, selected_model.strip())
+        except tk.TclError:
+            pass
+
+    def open_file_location(self, event):
+        try:
+            index = self.log_display_text.index(f"@0,{event.y}")
+            line = self.log_display_text.get(index + " linestart", index + " lineend")
+            file_path = line.split(" - ")[0].strip()
+            source_directory = self.source_directory_entry.get()
+            full_file_path = os.path.join(source_directory, file_path)
+
+            if os.path.isfile(full_file_path):
+                if os.name == 'nt':  # For Windows
+                    os.startfile(os.path.dirname(full_file_path))
+                elif os.name == 'posix':  # For MacOS and Linux
+                    subprocess.Popen(['open' if sys.platform == 'darwin' else 'xdg-open', os.path.dirname(full_file_path)])
+
+            # Выделяем строку
+            self.log_display_text.tag_add("highlight", index + " linestart", index + " lineend")
+            self.log_display_text.tag_config("highlight", background="yellow")
         except tk.TclError:
             pass
 
