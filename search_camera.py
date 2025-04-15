@@ -20,17 +20,17 @@ class PhotoProcessor:
 
     def initialize_user_interface(self):
         self.main_window.title("Анализатор и сортировщик фотографий")
-        self.main_window.geometry("1000x800")
+        self.main_window.geometry("1600x800")
 
         self.application_settings = {
-            'default_source_directory': r"D:\! фото до 2024 (весь архив, сортировано)\2011-2015",
-            'default_target_directory': r"D:\! фото до 2024 (весь архив, но сомнительные камеры)",
-            'default_camera_name': "Kodak",
+            'default_source_directory': r"D:\source_directory",
+            'default_target_directory': r"D:\target_directory",
+            'default_camera_name': "Sony",
             'font_style': ('Arial', 10),
             'color_scheme': {
                 'normal_text': 'black',
                 'error_text': 'red',
-                'match_text': '#CC0000',
+                'match_text': '#33cc33',
                 'header_text': '#0066CC',
                 'success_text': '#009933',
                 'warning_text': '#FF8800',
@@ -124,39 +124,56 @@ class PhotoProcessor:
         control_frame = tk.Frame(self.main_window)
         control_frame.pack(fill=tk.X, padx=10, pady=5)
 
+        # Обновленная цветовая палитра
+        self.color_palette = {
+            'analyze': {'bg': '#6B8E23', 'fg': '#FFFFFF', 'active_bg': '#556B2F'},  # Оливковый
+            'move': {'bg': '#4682B4', 'fg': '#FFFFFF', 'active_bg': '#3A6B8F'},      # Стальной синий
+            'pause': {'bg': '#DAA520', 'fg': '#FFFFFF', 'active_bg': '#B8860B'},    # Золотистый
+            'stop': {'bg': '#CD5C5C', 'fg': '#FFFFFF', 'active_bg': '#A52A2A'},     # Индийский красный
+            'default': {'bg': '#E0E0E0', 'fg': '#333333', 'active_bg': '#CCCCCC'}
+        }
+
         tk.Label(control_frame, text="Название камеры для поиска:").grid(row=0, column=0, padx=5, sticky='e')
 
         self.camera_name_entry = tk.Entry(control_frame, font=self.application_settings['font_style'])
         self.camera_name_entry.grid(row=0, column=1, padx=5, sticky='ew')
         self.camera_name_entry.insert(0, self.application_settings['default_camera_name'])
 
-        self.analyze_icon = self.create_control_icon("search")
+        # Кнопка анализа с иконкой "play"
+        self.analyze_icon = self.create_control_icon("play")
         self.analyze_button = tk.Button(
             control_frame,
             image=self.analyze_icon,
             command=self.start_photo_analysis,
-            bg="#4CAF50",
-            fg="white",
+            bg=self.color_palette['analyze']['bg'],
+            fg=self.color_palette['analyze']['fg'],
+            activebackground=self.color_palette['analyze']['active_bg'],
             font=('Arial', 11, 'bold'),
-            padx=20,
-            pady=8,
+            padx=12,
+            pady=6,
             text=" Анализировать",
-            compound=tk.LEFT
+            compound=tk.LEFT,
+            relief=tk.GROOVE,
+            borderwidth=2
         )
         self.analyze_button.grid(row=0, column=2, padx=5)
 
+        # Остальные кнопки остаются без изменений
         self.move_icon = self.create_control_icon("move")
         self.move_button = tk.Button(
             control_frame,
             image=self.move_icon,
             command=self.move_matching_photos,
-            bg="#FF9800",
-            fg="white",
+            bg=self.color_palette['move']['bg'],
+            fg=self.color_palette['move']['fg'],
+            activebackground=self.color_palette['move']['active_bg'],
             font=('Arial', 11, 'bold'),
-            padx=20,
-            pady=8,
+            padx=12,
+            pady=6,
             text=" Переместить",
-            compound=tk.LEFT
+            compound=tk.LEFT,
+            relief=tk.GROOVE,
+            borderwidth=2
         )
         self.move_button.grid(row=0, column=3, padx=5)
 
@@ -165,13 +182,16 @@ class PhotoProcessor:
             control_frame,
             image=self.pause_icon,
             command=self.toggle_processing_pause,
-            bg="#2196F3",
-            fg="white",
+            bg=self.color_palette['pause']['bg'],
+            fg=self.color_palette['pause']['fg'],
+            activebackground=self.color_palette['pause']['active_bg'],
             font=('Arial', 11, 'bold'),
-            padx=20,
-            pady=8,
+            padx=12,
+            pady=6,
             text=" Пауза",
-            compound=tk.LEFT
+            compound=tk.LEFT,
+            relief=tk.GROOVE,
+            borderwidth=2
         )
         self.pause_button.grid(row=0, column=4, padx=5)
 
@@ -180,18 +200,27 @@ class PhotoProcessor:
             control_frame,
             image=self.stop_icon,
             command=self.stop_photo_processing,
-            bg="#F44336",
-            fg="white",
+            bg=self.color_palette['stop']['bg'],
+            fg=self.color_palette['stop']['fg'],
+            activebackground=self.color_palette['stop']['active_bg'],
             font=('Arial', 11, 'bold'),
-            padx=20,
-            pady=8,
+            padx=12,
+            pady=6,
             text=" Стоп",
-            compound=tk.LEFT
+            compound=tk.LEFT,
+            relief=tk.GROOVE,
+            borderwidth=2
         )
         self.stop_button.grid(row=0, column=5, padx=5)
 
         control_frame.grid_columnconfigure(1, weight=1)
 
+
+
+
+
+    
+    
     def create_control_icon(self, icon_type):
         icon_size = 30
         background_color = "#f0f0f0"
@@ -250,6 +279,12 @@ class PhotoProcessor:
             )
 
         return ImageTk.PhotoImage(icon_image)
+
+
+
+
+
+
 
     def create_log_display_panel(self):
         main_panel = tk.Frame(self.main_window)
@@ -380,20 +415,25 @@ class PhotoProcessor:
         self.add_log_message(f"Всего обработано фотографий: {total_photos_processed}", 'header_text')
         status_tag = 'match_text' if matching_photos_found > 0 else 'normal_text'
         self.add_log_message(f"Найдено соответствующих фотографий: {matching_photos_found}", status_tag)
-
+    
     def move_matching_photos(self):
         source_directory = self.source_directory_entry.get()
-        target_directory = self.target_directory_entry.get()
+        base_target_directory = self.target_directory_entry.get()
         camera_name_to_move = self.camera_name_entry.get().strip()
 
         if not camera_name_to_move:
             messagebox.showwarning("Ошибка", "Пожалуйста, введите название камеры для перемещения")
             return
 
-        if not self.validate_directory_paths(source_directory, target_directory):
+        if not self.validate_directory_paths(source_directory, base_target_directory):
             return
 
-        target_directory = os.path.join(target_directory, camera_name_to_move)
+        # Проверяем существование папки и добавляем "!" при необходимости
+        target_directory = os.path.join(base_target_directory, camera_name_to_move)
+        counter = 1
+        while os.path.exists(target_directory):
+            target_directory = os.path.join(base_target_directory, f"{camera_name_to_move}_{counter}")
+            counter += 1
 
         confirmation_message = (
             f"Вы уверены, что хотите переместить все фотографии камеры '{camera_name_to_move}'?\n"
@@ -405,6 +445,7 @@ class PhotoProcessor:
 
         self.clear_log_messages()
         self.add_log_message(f"=== ПЕРЕМЕЩЕНИЕ ФОТОГРАФИЙ КАМЕРЫ: {camera_name_to_move.upper()} ===", 'header_text')
+        self.add_log_message(f"Фотографии будут перемещены в: {target_directory}", 'header_text')
 
         successfully_moved_count = 0
         error_count = 0
@@ -418,8 +459,9 @@ class PhotoProcessor:
                     try:
                         camera_model = self.extract_camera_model(full_file_path)
                         if camera_model and camera_name_to_move.lower() in camera_model.lower():
-                            target_relative_path = os.path.join(camera_name_to_move, relative_file_path)
-                            full_target_path = os.path.join(self.target_directory_entry.get(), target_relative_path)
+                            # Сохраняем структуру подпапок внутри целевой папки
+                            target_relative_path = os.path.join(os.path.basename(target_directory), relative_file_path)
+                            full_target_path = os.path.join(base_target_directory, target_relative_path)
 
                             os.makedirs(os.path.dirname(full_target_path), exist_ok=True)
 
@@ -438,9 +480,10 @@ class PhotoProcessor:
         if successfully_moved_count > 0:
             messagebox.showinfo(
                 "Завершено", 
-                f"Успешно перемещено {successfully_moved_count} фотографий камеры {camera_name_to_move}"
+                f"Успешно перемещено {successfully_moved_count} фотографий камеры {camera_name_to_move}\n"
+                f"в папку: {target_directory}"
             )
-
+ 
     def validate_directory_paths(self, source_path, target_path):
         if not os.path.isdir(source_path):
             self.add_log_message(f"ОШИБКА: Исходная папка не существует!\n{source_path}", 'error_text')
